@@ -87,7 +87,7 @@ class MyButton extends Component {
 
 > There is no standard and universal way to define mixins in JavaScript. In fact, several features to support mixins were dropped from ES6 today. There are a lot of libraries with different semantics. We think that there should be one way of defining mixins that you can use for any JavaScript class. React just making another doesn't help that effort.
 
-I agree, but I still want to use mixins with ES6 class. See below how.
+But if you still want to use mixins with ES6 class. See below how.
 
 <br/>
 `Mixins(componentClass, mixins = [], options = {})`
