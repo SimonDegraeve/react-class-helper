@@ -23,7 +23,7 @@ This library provides two elements: `Component` and `Mixins`. They can be used t
 > Therefore we decided not to have this built-in into React's class model. You can still explicitly prebind methods in your constructor if you want.
 
 <br>
-So it means that you have to do this:
+So it means that currently you have to do this:
 
 ```js
 import React from 'react';
@@ -43,7 +43,7 @@ class MyButton extends React.Component {
 
   render() {
     return (
-      <button onClick={this.onClick}> My button</button>
+      <button onClick={this.onClick}>My button</button>
     );
   }
 }
@@ -73,7 +73,7 @@ class MyButton extends Component {
 
   render() {
     return (
-      <button onClick={this.onClick}> My button</button>
+      <button onClick={this.onClick}>My button</button>
     );
   }
 }
@@ -133,7 +133,7 @@ Example:
 import React from 'react';
 import { Component, Mixins } from 'react-class-helper';
 
-// Define my component
+// Define component
 class MyButton extends Component {
   constructor(props) {
     super(props);
@@ -161,7 +161,7 @@ class MyButton extends Component {
 
   render() {
     return (
-      <button onClick={this.onClick}> My button</button>
+      <button onClick={this.onClick}>My button</button>
     );
   }
 }
@@ -203,6 +203,7 @@ var myMixin2 = {
   }
 };
 
+// Set mixins to component
 Mixins(MyButton, [myMixins1, myMixin2]);
 ```
 
