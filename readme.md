@@ -1,4 +1,4 @@
-# React Class Helper
+# React Class Helper [![npm version](https://badge.fury.io/js/react-class-helper.svg)](http://badge.fury.io/js/react-class-helper)
 
 > Helper for ES6 class with React (autobind, mixins, ...)
 
