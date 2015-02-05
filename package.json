@@ -1,0 +1,42 @@
+{
+  "name": "react-class-helper",
+  "description": "Helper for ES6 class with React (autobind, mixins, ...)",
+  "version": "0.1.0",
+  "homepage": "https://github.com/SimonDegraeve/react-class-helper",
+  "author": "Simon Degraeve <simon.degraeve@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SimonDegraeve/react-class-helper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SimonDegraeve/react-class-helper/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/SimonDegraeve/react-class-helper/blob/master/licence"
+    }
+  ],
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">= 0.10.x"
+  },
+  "scripts": {
+    "build": "rm ./dist/* && ./node_modules/.bin/6to5 -d ./dist ./lib",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "react": "^0.13.0-beta.1"
+  },
+  "keywords": [
+    "react",
+    "es6",
+    "class",
+    "mixin",
+    "mixins"
+  ],
+  "devDependencies": {
+    "6to5": "^3.3.12"
+  }
+}
