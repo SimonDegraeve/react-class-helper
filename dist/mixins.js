@@ -93,7 +93,7 @@ function getDefaultRules() {
 
   // Loop over mixins in reverse order
   mixins.reverse().forEach(function (mixin, index) {
-    // Loop over mixin property, ignore non function properties except 'propTypes' and 'statics'
+    // Loop over mixin property
     Object.keys(mixin).forEach(function (propName) {
       // Compatibility hack
       // Replace 'getInitialState' property with '_getInitialState'
