@@ -30,7 +30,7 @@ var Component = (function (_React$Component) {
     _get(_React$Component.prototype, "constructor", this).call(this, props);
 
     // Set initial state to merged object from '_getInitialState()'
-    this.state = Object.assign({}, this._getInitialState());
+    this.state = Object.assign({}, this._getInitialState(), this.state);
 
     // If options `shouldAutoBind` is true (default),
     // bind all methods to class instance (instead of window in browser)
