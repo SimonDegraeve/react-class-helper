@@ -84,16 +84,11 @@ function getDefaultRules() {
   var _this = this;
   var mixins = arguments[1] === undefined ? [] : arguments[1];
   var options = arguments[2] === undefined ? {} : arguments[2];
-  var _options$defaultRule = options.defaultRule;
-  var defaultRule = _options$defaultRule === undefined ? Mixins.ONCE : _options$defaultRule;
-  var _options$rules = options.rules;
-  var rules = _options$rules === undefined ? { something: "ok" } : _options$rules;
 
 
-
-
-  // Set default rules
-  options.rules = Object.assign(getDefaultRules(), options.rules);
+  // Define settings from options
+  var defaultRule = options.defaultRule || Mixins.ONCE;
+  var rules = Object.assign(getDefaultRules(), options.rules);
 
 
   // Loop over mixins in reverse order
@@ -101,7 +96,7 @@ function getDefaultRules() {
     // Loop over mixin property, ignore non function properties except 'propTypes' and 'statics'
     Object.keys(mixin).forEach(function (propName) {
       // Compatibility hack
-      // Replace 'getInitialState' propperty with '_getInitialState'
+      // Replace 'getInitialState' property with '_getInitialState'
       // to avoid warning message in React
       propName = propName === "getInitialState" ? "_getInitialState" : propName;
 
@@ -110,30 +105,27 @@ function getDefaultRules() {
       var prototypeProp = factory.prototype[propName];
       var mixinProp = mixin[propName];
 
-      switch (propName) {
+      // Compatibility hack
+      // Merge result of 'getDefaultProps' to 'defaultProps' factory property
+      if (propName === "getDefaultProps") {
+        factory.defaultProps = Object.assign(factory.defaultProps || {}, apply(_this, mixinProp));
+      }
 
-        // Compatibility hack
-        // Merge result of 'getDefaultProps' to 'defaultProps' factory property
-        case "getDefaultProps":
-          factory.defaultProps = Object.assign(factory.defaultProps || {}, apply(_this, mixinProp));
-          break;
+      // Compatibility hack
+      // Merge 'propTypes to 'propTypes' factory property
+      else if (propName === "propTypes") {
+        factory.propTypes = Object.assign(factory.propTypes || {}, mixinProp);
+      }
 
-        // Compatibility hack
-        // Merge 'propTypes to 'propTypes' factory property
-        case "propTypes":
-          factory.propTypes = Object.assign(factory.propTypes || {}, mixinProp);
-          break;
+      // Compatibility hack
+      // Merge statics with factory
+      else if (propName === "statics") {
+        Object.assign(factory, mixinProp);
+      }
 
-        // Merge statics with factory
-        case "statics":
-          Object.assign(factory, mixinProp);
-          break;
-
-        default:
-          // Set function with rule wrapper to factory prototype property
-          if (isFunction(mixinProp)) {
-            factory.prototype[propName] = rule(prototypeProp, mixinProp, propName);
-          }
+      // Ignore non function property, set factory prototype property to rule wrapper
+      else if (isFunction(mixinProp)) {
+        factory.prototype[propName] = rule(prototypeProp, mixinProp, propName);
       }
     });
   });
