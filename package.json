@@ -1,7 +1,7 @@
 {
   "name": "react-class-helper",
   "description": "Helper for ES6 class with React (autobind, mixins, ...)",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://github.com/SimonDegraeve/react-class-helper",
   "author": "Simon Degraeve <simon.degraeve@gmail.com>",
   "repository": {

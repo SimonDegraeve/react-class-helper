@@ -52,22 +52,8 @@ function isObject(object) {
   return getType(object) === "[object Object]";
 };
 
-function isObjectOrNull(object) {
-  return isObject(object) || isNull(object);
-};
-
 function isFunction(object) {
   return getType(object) === "[object Function]";
-};
-
-function getOrCall(object) {
-  return !isFunction(object) ? object : function () {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return object.apply.apply(object, [this].concat(_toArray(args)));
-  };
 };
 
 function apply(self, fn) {
@@ -98,47 +84,56 @@ function getDefaultRules() {
   var _this = this;
   var mixins = arguments[1] === undefined ? [] : arguments[1];
   var options = arguments[2] === undefined ? {} : arguments[2];
+  var _options$defaultRule = options.defaultRule;
+  var defaultRule = _options$defaultRule === undefined ? Mixins.ONCE : _options$defaultRule;
+  var _options$rules = options.rules;
+  var rules = _options$rules === undefined ? { something: "ok" } : _options$rules;
 
 
-  // Define settings from options
-  var defaultRule = options.defaultRule || Mixins.ONCE;
-  var rules = Object.assign(getDefaultRules(), options.rules);
-  var getInitialStateFnName = "_getInitialState";
+
+
+  // Set default rules
+  options.rules = Object.assign(getDefaultRules(), options.rules);
+
 
   // Loop over mixins in reverse order
   mixins.reverse().forEach(function (mixin, index) {
     // Loop over mixin property, ignore non function properties except 'propTypes' and 'statics'
-    Object.keys(mixin).forEach(function (key) {
-      var mixinProperty = mixin[key];
-      var rule = rules[key] || defaultRule;
-
+    Object.keys(mixin).forEach(function (propName) {
       // Compatibility hack
-      // Merge result of 'getDefaultProps' to 'defaultProps' factory property
-      if (key === "getDefaultProps") {
-        factory.defaultProps = Object.assign(factory.defaultProps || {}, apply(_this, mixinProperty));
-      }
-
-      // Compatibility hack
-      // Merge 'propTypes to 'propTypes' factory property
-      else if (key === "propTypes") {
-        factory.propTypes = Object.assign(factory.propTypes || {}, mixinProperty);
-      }
-
-      // Compatibility hack
-      // Replace 'getInitialState' function name with getInitialStateFnName value
+      // Replace 'getInitialState' propperty with '_getInitialState'
       // to avoid warning message in React
-      else if (key === "getInitialState") {
-        factory.prototype[getInitialStateFnName] = getOrCall(rule(factory.prototype[getInitialStateFnName], mixinProperty, key));
-      }
+      propName = propName === "getInitialState" ? "_getInitialState" : propName;
 
-      // Merge statics with factory
-      else if (key === "statics") {
-        Object.assign(factory, mixinProperty);
-      }
+      // Set useful variable
+      var rule = rules[propName] || defaultRule;
+      var prototypeProp = factory.prototype[propName];
+      var mixinProp = mixin[propName];
 
-      // Set function with rule wrapper to factory prototype property
-      else if (isFunction(mixinProperty)) {
-        factory.prototype[key] = getOrCall(rule(factory.prototype[key], mixinProperty, key));
+      switch (propName) {
+
+        // Compatibility hack
+        // Merge result of 'getDefaultProps' to 'defaultProps' factory property
+        case "getDefaultProps":
+          factory.defaultProps = Object.assign(factory.defaultProps || {}, apply(_this, mixinProp));
+          break;
+
+        // Compatibility hack
+        // Merge 'propTypes to 'propTypes' factory property
+        case "propTypes":
+          factory.propTypes = Object.assign(factory.propTypes || {}, mixinProp);
+          break;
+
+        // Merge statics with factory
+        case "statics":
+          Object.assign(factory, mixinProp);
+          break;
+
+        default:
+          // Set function with rule wrapper to factory prototype property
+          if (isFunction(mixinProp)) {
+            factory.prototype[propName] = rule(prototypeProp, mixinProp, propName);
+          }
       }
     });
   });
@@ -150,41 +145,42 @@ function getDefaultRules() {
 // ---------------
 
 // Can be defined only once
-Mixins.ONCE = function (left, right, key) {
-  invariant(isDefinedOnce(left, right), "You are attempting to define `" + key + "` on your component more than once. " + "This conflict may be due to a mixin.");
+Mixins.ONCE = function (prototypeProp, mixinProp, propName) {
+  invariant(isDefinedOnce(prototypeProp, mixinProp), "You are attempting to define `" + propName + "` on your component more than once. " + "This conflict may be due to a mixin.");
 
   return function () {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    return apply.apply(undefined, [this, left || right].concat(_toArray(args)));
+    return apply.apply(undefined, [this, prototypeProp || mixinProp].concat(_toArray(args)));
   };
 };
 
 // Can be defined multiple times
-Mixins.MANY = function (left, right, key) {
+Mixins.MANY = function (prototypeProp, mixinProp, propName) {
+  var shouldMerge = arguments[3] === undefined ? false : arguments[3];
   return function () {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    return (apply.apply(undefined, [this, right].concat(_toArray(args))) || true) && apply.apply(undefined, [this, left].concat(_toArray(args)));
+    return (apply.apply(undefined, [this, mixinProp].concat(_toArray(args))) || true) && apply.apply(undefined, [this, prototypeProp].concat(_toArray(args)));
   };
 };
 
 // Can be defined multiple times, and merge results
-Mixins.MANY_MERGED = function (left, right, key) {
+Mixins.MANY_MERGED = function (prototypeProp, mixinProp, propName) {
   return function () {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    var resultRight = apply.apply(undefined, [this, right].concat(_toArray(args)));
-    var resultLeft = apply.apply(undefined, [this, left].concat(_toArray(args)));
+    var mixinResult = apply.apply(undefined, [this, mixinProp].concat(_toArray(args))) || {};
+    var prototypeResult = apply.apply(undefined, [this, prototypeProp].concat(_toArray(args))) || {};
 
-    invariant(isObjectOrNull(resultRight) && isObjectOrNull(resultLeft), "`" + key + "` must return an object or null.");
+    invariant(isObject(prototypeResult) && isObject(mixinResult), "`" + propName + "` must return an object or null.");
 
-    return Object.assign(resultRight || {}, resultLeft);
+    return Object.assign({}, mixinResult, prototypeResult);
   };
 };
