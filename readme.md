@@ -2,6 +2,8 @@
 
 > Helper for ES6 class with React (autobind, mixins, ...)
 
+# /!\ Deprecated
+This project is no longer maintained. Please use [react-mixin](https://github.com/brigand/react-mixin) instead.
 
 ## Installation
 
