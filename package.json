@@ -22,7 +22,7 @@
     "node": ">= 0.10.x"
   },
   "scripts": {
-    "build": "6to5 -d ./dist ./lib",
+    "build": "babel lib --out-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {},
@@ -37,6 +37,6 @@
     "mixins"
   ],
   "devDependencies": {
-    "6to5": "^3.3.12"
+    "babel": "^5.0.0"
   }
 }
